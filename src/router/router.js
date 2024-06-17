@@ -1,4 +1,4 @@
-import {createRouter, createWebHashHistory} from "vue-router"
+import {createRouter, createWebHashHistory, createWebHistory} from "vue-router"
 
 const routes = [{
     path: "/",
@@ -12,7 +12,7 @@ const routes = [{
     { path: '/:pathMatch(.*)',name:"NotFound", component: ()=>import("@/view/notFound/notFound.vue"), }
 ]
 const router = createRouter({
-    history:createWebHashHistory(),
+    history:createWebHistory(),
     routes
 })
 function isValidURL(url) {
