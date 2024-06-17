@@ -1,13 +1,12 @@
 import axios from "axios";
 
 const service = axios.create({
-    baseURL:"/api",
+    baseURL:import.meta.env.VITE_BASE_API,
     timeout:5000,
     headers: {
         'Content-Type': 'application/json',
     },
 })
-
 service.interceptors.request.use((config)=>{
     return config;
 },(err)=>{

@@ -1,39 +1,134 @@
 <template>
   <div class="form-container drag-mod">
-    <div class="login-box" >
-      <p class="title">胖狐用户认证中心</p>
-      <form class="form no-drag" @submit.prevent.stop="handleSubmit">
-        <input v-model="formData.username" type="text" class="input inputStyle" placeholder="手机号码" />
-        <input
-            v-model="formData.password"
-            type="password"
-            class="input inputStyle"
-            placeholder="密码"
-        />
-        <button class="form-btn-register form-btn loginBtn" @click.prevent="registerBtn">注册</button>
-        <button class="form-btn loginBtn" type="submit">登录</button>
-      </form>
-    </div>
-    <div class="register-box">
-      注册
-    </div>
+   <div class="box3d" :class="{
+     transformY:isRegister
+   }">
+     <div class="login-box boxItem" >
+       <p class="title">胖狐用户认证中心</p>
+       <form class="form no-drag" @submit.prevent.stop="handleSubmit">
+         <input v-model="formData.username" type="text" class="input " placeholder="手机号码" />
+         <input
+             v-model="formData.password"
+             type="password"
+             class="input "
+             placeholder="密码"
+         />
+         <button class="form-btn-register form-btn loginBtn" @click.prevent="registerBtn">注册</button>
+         <button class="form-btn loginBtn" type="submit">登录</button>
+       </form>
+     </div>
+     <div class="register-box  boxItem">
+       <p class="title">胖狐用户注册中心</p>
+       <form class="form no-drag" @submit.prevent.stop="registerHandleSubmit">
+         <el-carousel ref="carouselRef" height="250px" :interval="5000" indicator-position="none" :autoplay="false"  arrow="never">
+           <el-carousel-item  >
+             <div style="width: 100%">
+               <input  v-model="registerForm.username" type="text" class="input " placeholder="用户名" />
+               <input
+                   v-model="registerForm.password"
+                   type="password"
+                   class="input inputStyle"
+                   placeholder="密码"
+               />
+               <button class="form-btn-register form-btn loginBtn inputStyle" @click.prevent="back">退出</button>
+               <button class="form-btn loginBtn inputStyle"  @click.prevent="next()">下一步</button>
+             </div>
+           </el-carousel-item>
+           <el-carousel-item  >
+             <div style="width: 100%">
+               <input  v-model="registerForm.nickname" type="text" class="input " placeholder="昵称" />
+               <input
+                   v-model="registerForm.phone"
+                   type="password"
+                   class="input inputStyle"
+                   placeholder="手机号码"
+               />
+               <button class="form-btn-register form-btn loginBtn inputStyle" @click.prevent="back">退出</button>
+               <button class="form-btn loginBtn inputStyle"  @click.prevent="next()">下一步</button>
+             </div>
+           </el-carousel-item>
+           <el-carousel-item  >
+             <div style="width: 100%">
+               <input  v-model="registerForm.email" type="text" class="input " placeholder="邮箱" />
+               <div style="display: flex">
+                 <input
+                     v-model="registerForm.code"
+                     type="password"
+                     class="input inputStyle"
+                     style="width: 200px"
+                     placeholder="验证码"
+                 />
+                   <button @click.prevent="receiveCode" style="margin-left: 10px" class="form-btn loginBtn inputStyle">
+                       验证码
+                   </button>
+
+               </div>
+               <button class="form-btn-register form-btn loginBtn inputStyle" @click.prevent="back">退出</button>
+               <button class="form-btn loginBtn inputStyle" type="submit">完成</button>
+             </div>
+           </el-carousel-item>
+         </el-carousel>
+       </form>
+     </div>
+   </div>
+
   </div>
 </template>
 <script setup>
 import {onMounted, ref} from 'vue'
 import {Login} from "@/api/login.js";
 import {useRoute,useRouter} from "vue-router";
-let formData = ref({
-  username: '',
-  password: '',
+import {SendEmailCode} from "@/api/register.js";
+import {ElMessage} from "element-plus";
+let registerForm = ref({
+  "username":"",
+  "password":"",
+  "phone":"",
+  "nickname":"",
+  "email":"",
+  "code":""
+})
+let formData=ref({
+  username:"",
+  password:"",
   redirect:""
 })
+const carouselRef =ref(null)
+const back=()=>{
+  isRegister.value=false
+  carouselRef.value.setActiveItem(0)
+  registerForm.value = {
+    "username":"",
+    "password":"",
+    "phone":"",
+    "nickname":"",
+    "email":"",
+    "code":""
+  }
+}
 onMounted(()=>{
   formData.value.redirect = route.query.redirect_url
 })
+const receiveCode= async ()=>{
+     let {code} = await SendEmailCode({
+       email:registerForm.value.email
+     })
+  if(code === 200){
+    ElMessage.success("发送成功")
+  }
+}
+const registerHandleSubmit=()=>{
+  console.log("注册")
+}
+const  next =()=>{
+  carouselRef.value.next()
+}
+
 const registerBtn =()=>{
   console.log("registerBtn")
+  isRegister.value =true
 }
+let isRegister=ref(false)
 const route = useRoute()
 const router = useRouter()
 const handleSubmit = async (event) => {
@@ -52,48 +147,55 @@ const handleSubmit = async (event) => {
 </script>
 <style scoped>
 .login-box{
-  width: 300px;
-  box-shadow: 1px 1px 10px #ececec;
-  padding: 10px 30px 40px;
-  height: 350px;
-  border:1px solid #ececec;
-  background-color: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px); /* 模糊效果 */
-  position: absolute;
-  width: 300px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1;
+  z-index: 2;
 }
-.register-box{
+
+.boxItem{
   position: absolute;
-  width: 300px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 1px 1px 10px #ececec;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
   padding: 10px 30px 40px;
+  box-sizing: border-box;
+}
+.transformY {
+  transform: rotateY(180deg) !important;
+  z-index: 4;
+}
+.box3d{
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.7);
+  transform-style: preserve-3d;
+  transform: rotateY(0deg);
+  transition: transform 0.6s;
+  box-shadow: 1px 1px 10px #ececec;
   border:1px solid #ececec;
-  background-color: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px); /* 模糊效果 */
-  height: 350px;
+  width: 360px;
+  height: 400px;
+}
+
+.register-box{
+  transform: rotateY(180deg);
+  z-index: 1;
 }
 .form-container {
   width: 100%;
   height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;position: relative;
   background-image: url(@/assets/loginBackground.jpg);
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   border-radius: 10px;
-  box-sizing: border-box;
   padding: 20px 30px;
   background-repeat: no-repeat;
   background-size: cover;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  box-shadow: rgba(0, 0, 0, 0.35) 0 5px 15px;
+  box-sizing: border-box;
 }
-
+.inputStyle{
+  margin-top: 18px;
+  width: 100%;
+}
 .title {
   text-align: center;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva,
@@ -103,7 +205,6 @@ const handleSubmit = async (event) => {
   font-weight: 800;
   display: flex;
   color: #522323;
-
   align-items: center;
   justify-content: center;
 }
@@ -125,31 +226,10 @@ const handleSubmit = async (event) => {
   box-sizing: border-box;
   padding: 8px 15px;
   height: 40px;
-}
-
-.page-link {
-  text-decoration: underline;
-  margin: 0;
-  text-align: end;
-  color: #747474;
-  text-decoration-color: #747474;
-  display: flex;
-  justify-content: space-between;
   width: 100%;
 }
 
-.page-link-label {
-  cursor: pointer;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva,
-  Verdana, sans-serif;
-  font-size: 9px;
-  font-weight: 700;
-  display: flex;
-}
 
-.page-link-label:hover {
-  color: #000;
-}
 
 .form-btn {
   padding: 10px 15px;
@@ -172,69 +252,6 @@ const handleSubmit = async (event) => {
 }
 .form-btn:active {
   box-shadow: none;
-}
-
-.sign-up-label {
-  margin: 0;
-  font-size: 10px;
-  color: #747474;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva,
-  Verdana, sans-serif;
-}
-
-.sign-up-link {
-  margin-left: 1px;
-  font-size: 11px;
-  text-decoration: underline;
-  text-decoration-color: teal;
-  color: teal;
-  cursor: pointer;
-  font-weight: 800;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva,
-  Verdana, sans-serif;
-}
-
-.buttons-container {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  margin-top: 20px;
-  gap: 15px;
-}
-
-.cbx {
-  position: relative;
-  top: 1px;
-  width: 20px;
-  height: 20px;
-  border: 1px solid #6e6e6e;
-  border-radius: 3px;
-  vertical-align: middle;
-  transition: background 0.1s ease;
-  cursor: pointer;
-  display: block;
-}
-
-.cbx:after {
-  content: '';
-  position: absolute;
-  top: 0px;
-  left: 6px;
-  width: 7px;
-  height: 14px;
-  opacity: 0;
-  transform: rotate(45deg) scale(0);
-  border-right: 2px solid #fff;
-  border-bottom: 2px solid #fff;
-  transition: all 0.3s ease;
-  transition-delay: 0.15s;
-}
-
-.lbl {
-  margin-left: 5px;
-  vertical-align: middle;
-  cursor: pointer;
 }
 
 #cbx:checked ~ .cbx {
