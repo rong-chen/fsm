@@ -17,7 +17,9 @@ service.interceptors.request.use((config)=>{
 
 service.interceptors.response.use((resp)=>{
     if(resp.data.code === 302){
-        window.location.href = resp.data.data.redirect
+        window.open(resp.data.data)
+        window.close()
+        return resp.data
     }else{
         if(resp.data.code === 200){
             return resp.data

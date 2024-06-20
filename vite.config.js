@@ -18,13 +18,13 @@ export default defineConfig(({ mode }) => {
   };
 
   // 根据环境变量配置代理
-  const proxyConfig = VITE_BASE_API ? {
+  const proxyConfig =  {
     [VITE_BASE_API]: {
       target: `${VITE_BASE_URL}:${VITE_BASE_PORT}`, // 确保拼接正确的URL
       changeOrigin: true,
       rewrite: (path) => path.replace(new RegExp(`^${VITE_BASE_API}`), ''),
     },
-  } : {};
+  }
 
   return {
     plugins: [vue()],

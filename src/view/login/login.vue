@@ -51,6 +51,20 @@
            </el-carousel-item>
            <el-carousel-item>
              <div style="width: 100%">
+               <el-form-item prop="nickname">
+                 <input  v-model="registerForm.sex" type="text" class="input " placeholder="性别" /></el-form-item>
+               <el-form-item  prop="出生日期">
+                  <input
+                   v-model="registerForm.birthday"
+                   type="password"
+                   class="input inputStyle"
+                   placeholder="手机号码"
+                  />
+                </el-form-item>
+             </div>
+           </el-carousel-item>
+           <el-carousel-item>
+             <div style="width: 100%">
                <el-form-item prop="email">
                 <input  v-model="registerForm.email" type="text" class="input " placeholder="邮箱" />
                </el-form-item>
@@ -70,8 +84,8 @@
              </div>
            </el-carousel-item>
          </el-carousel>
-         <button class="form-btn loginBtn inputStyle"  v-if="carouselIndex !== 2"  @click.prevent="next()">下一步</button>
-         <button class="form-btn loginBtn inputStyle" v-if="carouselIndex === 2" @click.prevent.stop="registerHandleSubmit">完成</button>
+         <button class="form-btn loginBtn inputStyle"  v-if="carouselIndex !== 3"  @click.prevent="next()">下一步</button>
+         <button class="form-btn loginBtn inputStyle" v-if="carouselIndex === 3" @click.prevent.stop="registerHandleSubmit">完成</button>
          <button class="form-btn-register form-btn loginBtn inputStyle" v-if="carouselIndex !== 0"   @click.prevent="pre()">上一步</button>
        </el-form>
      </div>
@@ -91,12 +105,16 @@ let registerForm = ref({
   "phone":"",
   "nickname":"",
   "email":"",
-  "code":""
+  "code":"",
+  "sex":"",
+  "birthday":""
 })
 let formData=ref({
   username:"",
   password:"",
-  redirect:""
+  redirect_url:"",
+  state:"",
+  client_id:""
 })
 
 function validateUsername(rule, value, callback){
@@ -137,6 +155,12 @@ const rules = ref({
   code:[
     { required: true, message: '请输入邮箱验证码', trigger: 'blur' },
   ],
+  sex:[
+    { required: true, message: '请输入邮箱验证码', trigger: 'blur' },
+  ],
+  birthday:[
+    { required: true, message: '请输入邮箱验证码', trigger: 'blur' },
+  ],
 })
 
 const carouselRef =ref(null)
@@ -155,7 +179,11 @@ const back=()=>{
 }
 
 onMounted(()=>{
-  formData.value.redirect = route.query.redirect_url
+  const hash = window.location.hash.substring(1);
+  const hashParams = new URLSearchParams(hash);
+  formData.value.client_id= hashParams.get('client_id') || route.query.client_id;
+  formData.value.state= hashParams.get('state') || route.query.state;
+  formData.value.redirect_url = hashParams.get('redirect_url') || route.query.redirect_url;
 })
 let email = ref("")
 const receiveCode= async ()=>{
@@ -225,12 +253,13 @@ const route = useRoute()
 const router = useRouter()
 const handleSubmit = async (event) => {
   if(formData.value.username && formData.value.password){
-    if(!formData.value.redirect){
+    if(!formData.value.redirect_url){
       await router.push({
         path: "/NotFound",
       })
+    }else{
+      await Login(formData.value)
     }
-    await Login(formData.value)
   }else{
     alert("请输入账号和密码")
   }
@@ -275,12 +304,14 @@ const handleSubmit = async (event) => {
   height: 100vh;
   display: flex;
   align-items: center;
-  justify-content: center;position: relative;
+  justify-content: center;
+  position: relative;
   background-image: url(@/assets/loginBackground.jpg);
+  background-size: 100% ,100%;
   border-radius: 10px;
   padding: 20px 30px;
+  background-position: center;
   background-repeat: no-repeat;
-  background-size: cover;
   box-shadow: rgba(0, 0, 0, 0.35) 0 5px 15px;
   box-sizing: border-box;
 }
