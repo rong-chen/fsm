@@ -21,11 +21,10 @@ service.interceptors.response.use((resp)=>{
         window.close()
         return resp.data
     }else{
-        if(resp.data.code === 200){
-            return resp.data
-        }else{
+        if(resp.data.code !== 200){
             ElMessage.error(resp.data.msg)
         }
+        return resp.data
     }
 },(err)=>{
     return Promise.reject(err)

@@ -7,11 +7,3 @@ export const Login =(data)=>{
      data
  })
 }
-
-export const Register =(data)=>{
-    return service({
-        url:"/user/register",
-        method:"post",
-        data
-    })
-}

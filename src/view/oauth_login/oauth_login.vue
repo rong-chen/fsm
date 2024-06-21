@@ -6,14 +6,14 @@
       <div class="login-box boxItem">
         <p class="title">胖狐用户认证中心</p>
         <form class="form no-drag" @submit.prevent.stop="handleSubmit">
-          <input v-model="formData.username" type="text" class="input " placeholder="手机号码"/>
+          <input v-model="formData.username" type="text" class="input " placeholder="用户账号"/>
           <input
               v-model="formData.password"
               type="password"
               class="input "
               placeholder="密码"
           />
-          <button class="form-btn-register form-btn loginBtn" @click.prevent="registerBtn">注册</button>
+          <button class="form-btn-register form-btn loginBtn" @click.prevent="registerBtn">用户注册</button>
           <button class="form-btn loginBtn" type="submit">登录</button>
         </form>
       </div>
@@ -21,17 +21,27 @@
         <div><img class="backIcon" src="@/assets/back.png" @click="back" alt="返回"></div>
         <p class="title">胖狐用户注册中心</p>
         <el-form :rules="rules" ref="registerFormRef" :model="registerForm" label-width="auto">
-          <el-carousel ref="carouselRef" @change="carouselChange" height="130px" :interval="5000"
-                       indicator-position="none" :autoplay="false" arrow="never">
+          <el-carousel
+              ref="carouselRef"
+              @change="carouselChange"
+              height="130px"
+              :interval="5000"
+              indicator-position="none"
+              :autoplay="false"
+              arrow="never"
+          >
             <el-carousel-item>
               <div style="width: 100%">
                 <el-form-item prop="username">
                   <el-input v-model="registerForm.username" style="width: 300px;height:40px" placeholder="用户名"/>
                 </el-form-item>
                 <el-form-item prop="password">
-                  <el-input v-model="registerForm.password"
-                            type="password"
-                            style="width: 300px;height:40px" placeholder="密码"/>
+                  <el-input
+                      v-model="registerForm.password"
+                      type="password"
+                      style="width: 300px;height:40px"
+                      placeholder="密码"
+                  />
                 </el-form-item>
               </div>
             </el-carousel-item>
@@ -88,8 +98,9 @@
                         placeholder="验证码"
                     />
                   </el-form-item>
-                  <el-button type="primary" icon="Iphone" @click.prevent="receiveCode" style="margin-left: 10px;width: 100px;height: 40px"
-                          class=" loginBtn ">
+                  <el-button type="primary" icon="Iphone" @click.prevent="receiveCode"
+                             style="margin-left: 10px;width: 100px;height: 40px"
+                             class=" loginBtn ">
                     验证码
                   </el-button>
                 </div>
@@ -111,9 +122,9 @@
 </template>
 <script setup>
 import {onMounted, ref} from 'vue'
-import {Login, Register} from "@/api/login.js";
+import {Login} from "@/api/login.js";
 import {useRoute, useRouter} from "vue-router";
-import {SendEmailCode} from "@/api/register.js";
+import {Register, SendEmailCode} from "@/api/register.js";
 import {ElMessage} from "element-plus";
 
 const registerFormRef = ref(null)
@@ -134,6 +145,11 @@ let formData = ref({
   state: "",
   client_id: ""
 })
+const goToClientRegisterPage =()=>{
+  router.push({
+    name:"clientRegister"
+  })
+}
 
 function validateUsername(rule, value, callback) {
   const regex = /^\d{6,}$/;

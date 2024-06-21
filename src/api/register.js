@@ -6,3 +6,11 @@ export const SendEmailCode =(data)=>{
         data
     })
 }
+
+export const Register =(data)=>{
+    return service({
+        url:"/oauth_user/register",
+        method:"post",
+        data
+    })
+}
