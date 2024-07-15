@@ -1,7 +1,7 @@
 <template>
   <div class="form-container drag-mod">
     <div class="box3d" :class="{
-     transformY:isRegister
+     'transformY':isRegister
    }">
       <div class="login-box boxItem">
         <p class="title">胖狐开发者平台</p>
@@ -22,7 +22,7 @@
             <a-input placeholder="登录账号" style="height: 40px;width: 300px" v-model:value="formState.username"/>
           </a-form-item>
           <a-form-item name="password">
-            <a-input-password style="height: 40px;width: 300px" placeholder="密码" v-model:value="formState.password"/>
+            <a-input-password style="height: 40px;width: 300px" type="password" placeholder="密码" v-model:value="formState.password"/>
           </a-form-item>
           <a-form-item>
             <div>
@@ -147,6 +147,7 @@ import {useRoute, useRouter} from "vue-router";
 import {Register, SendEmailCode} from "@/api/register.js";
 import {ElMessage} from "element-plus";
 import {ClientsLogin} from "@/api/clients_user.js";
+import {userInfoStore} from "@/pinia/user.js";
 
 const formState = reactive({
   username: '',
@@ -154,24 +155,21 @@ const formState = reactive({
 });
 
 const formRef = ref();
-
+const userInfo = userInfoStore()
 const onFinish = async () => {
   let resp = await ClientsLogin(formState)
-  if(resp.data.code ===200){
-
+  if(resp['code'] ===200){
+    userInfo.token.r = resp.data.rToken
+    userInfo.token.a = resp.data.aToken
     localStorage.setItem("rToken",resp.data.rToken)
     localStorage.setItem("aToken",resp.data.aToken)
-
-
     ElMessage.success("登录成功")
      await router.push({
-      name:"clients_home"
+      name:"clients_layout"
     })
   }
 };
-const onFinishFailed = errorInfo => {
-  // console.log('Failed:', errorInfo);
-};
+
 
 
 function validateUsername2(rule, value) {
@@ -211,11 +209,6 @@ let formData = ref({
   state: "",
   client_id: ""
 })
-const goToClientRegisterPage = () => {
-  router.push({
-    name: "clientRegister"
-  })
-}
 
 function validateUsername(rule, value) {
   const regex = /^\d{6,}$/;
@@ -298,7 +291,9 @@ const back = () => {
     "phone": "",
     "nickname": "",
     "email": "",
-    "code": ""
+    "code": "",
+    "sex": "",
+    "birthday": ""
   }
   email.value = ""
 }
@@ -331,9 +326,12 @@ const registerHandleSubmit = async () => {
     if (email.value !== registerForm.value.email) {
       alert("修改邮箱请重新获取验证码")
     } else {
-      registerForm.value.birthday = new Date(registerForm.value.birthday).getTime()
-      let resp = await Register(registerForm.value)
-      if (resp.code === 200) {
+      let birthday =  new Date(registerForm.value.birthday).getTime()
+      let resp = await Register({
+        ...registerForm.value,
+        birthday
+      })
+      if (resp['code'] === 200) {
         ElMessage.success("注册成功")
         back()
       }

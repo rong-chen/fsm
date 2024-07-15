@@ -1,31 +1,39 @@
 import {createRouter, createWebHashHistory, createWebHistory} from "vue-router"
+import {userInfoStore} from "@/pinia/user.js";
 
 const routes = [
-    {path: "/",redirect: "/clients_login"},
+    {path: "/",disabledShow:true,redirect: "/clients_login"},
     {
         path: '/oauth_login',
         name: 'oauth_login',
+        disabledShow:true,
         component: ()=>import("@/view/oauth_login/oauth_login.vue"),
     },{
         path: '/clients_login',
         name: 'clients_login',
+        disabledShow:true,
         component: ()=>import("@/view/clients/clients_login/clients_login.vue"),
     },{
-        path: '/clients',
-        name: 'clients',
+        path: '/clients_layout',
+        name: 'clients_layout',
+        label:"密钥",
+        redirect: {name:'clients_home'},
+        component: ()=>import("@/view/clients/clients_layout/clients_layout.vue"),
         children:[
             {
-                path: '',
+                path: 'clients_home',
                 name: 'clients_home',
+                label:"密钥申请",
                 component: ()=>import("@/view/clients/clients_home/clientsHome.vue"),
             },{
-                path: '/manage',
+                path: 'manage',
+                label:"密钥管理",
                 name: 'clients_manage',
                 component: ()=>import("@/view/clients/clients_manage/clientsManage.vue"),
             }
         ]
     },
-    { path: '/:pathMatch(.*)',name:"NotFound", component: ()=>import("@/view/notFound/notFound.vue"), }
+    { path: '/:pathMatch(.*)',disabledShow:true,name:"NotFound", component: ()=>import("@/view/notFound/notFound.vue"), }
 ]
 const router = createRouter({
     history:createWebHistory(),
@@ -52,8 +60,20 @@ router.beforeEach((to, from, next) => {
            })
            return;
        }
+    }else{
+        const userInfo = userInfoStore()
+        if(userInfo.token.r && userInfo.token.a){
+            next()
+        }else{
+           if(to.path !=="/clients_login"){
+               next({
+                   name:"clients_login"
+               })
+           }else{
+               next()
+           }
+        }
     }
-    next()
 })
 
 export default router
